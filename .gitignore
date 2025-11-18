@@ -1,0 +1,65 @@
+# Build artifacts
+*.o
+*.a
+*.so
+*.elf
+*.bin
+*.img
+*.dtb
+*.ko
+
+# Compiled binaries
+zImage
+uImage
+MLO
+u-boot
+vmlinux
+
+# Toolchain builds (too large)
+x-tools/
+.build/
+build/
+output/
+
+# Source directories (clone separately)
+linux-stable/
+linux-*/
+u-boot/
+u-boot-*/
+crosstool-ng/
+buildroot/
+buildroot-*/
+poky/
+
+# Buildroot
+dl/
+.buildroot-*
+.config.old
+
+# Yocto
+tmp/
+sstate-cache/
+downloads/
+cache/
+
+# Temporary files
+*.tmp
+*.swp
+*~
+.DS_Store
+
+# Log files
+*.log
+build.log
+
+# Archives
+*.tar.*
+*.zip
+*.gz
+*.xz
+*.bz2
+
+# Keep scripts and configs
+!*.sh
+!*.config
+!*defconfig
