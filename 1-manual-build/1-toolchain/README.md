@@ -1,14 +1,24 @@
-# Cross-Compilation Toolchain
+# Cross-Compilation Toolchains
 
 ## What Was Built
 
+Two ARM toolchains were built using crosstool-ng 1.28.0:
+
+### 1. BeagleBone Black Toolchain
 - **Toolchain:** arm-cortex_a8-linux-gnueabihf
-- **Tool:** crosstool-ng 1.28.0
-- **Target:** ARM Cortex-A8 (BeagleBone Black)
+- **Target:** ARM Cortex-A8 (hard-float ABI)
 - **C Library:** glibc
 - **Installation:** ~/x-tools/arm-cortex_a8-linux-gnueabihf/
 
+### 2. QEMU ARM Toolchain
+- **Toolchain:** arm-unknown-linux-gnueabi
+- **Target:** ARM Generic (soft-float ABI)
+- **C Library:** glibc
+- **Installation:** ~/x-tools/arm-unknown-linux-gnueabi/
+
 ## Build Steps
+
+### Setup crosstool-ng (once)
 
 ```bash
 # 1. Clone and checkout latest stable version
@@ -22,15 +32,37 @@ git checkout crosstool-ng-1.28.0
 ./configure --prefix=${PWD}
 make
 make install
+```
 
-# 3. Select target configuration
+### Build BeagleBone Black Toolchain
+
+```bash
+cd ~/crosstool-ng
+
+# Select target configuration
 bin/ct-ng arm-cortex_a8-linux-gnueabi
 
-# 4. Customize (optional)
+# Customize (optional)
 bin/ct-ng menuconfig
 # Disabled: "Render the toolchain read-only" in Paths and misc options
 
-# 5. Build (takes 30-60 minutes)
+# Build (takes 30-60 minutes)
+bin/ct-ng build
+```
+
+### Build QEMU Toolchain
+
+```bash
+cd ~/crosstool-ng
+
+# Select target configuration
+bin/ct-ng arm-unknown-linux-gnueabi
+
+# Customize (optional)
+bin/ct-ng menuconfig
+# Disabled: "Render the toolchain read-only" in Paths and misc options
+
+# Build (takes 30-60 minutes)
 bin/ct-ng build
 ```
 

@@ -4,7 +4,9 @@
 
 - **Kernel Version:** Linux 6.6 (LTS)
 - **Targets:** BeagleBone Black (ARM Cortex-A8) and QEMU ARM Versatile PB
-- **Build Method:** Cross-compilation using arm-cortex_a8-linux-gnueabihf toolchain
+- **Build Method:** Cross-compilation
+  - BeagleBone Black: `arm-cortex_a8-linux-gnueabihf` toolchain
+  - QEMU: `arm-unknown-linux-gnueabi` toolchain
 
 ## BeagleBone Black Kernel
 
@@ -65,9 +67,9 @@ bootz 0x80200000 - 0x80f00000
 
 ```bash
 cd ~/linux-stable-qemu
-export PATH=~/x-tools/arm-cortex_a8-linux-gnueabihf/bin:$PATH
+export PATH=~/x-tools/arm-unknown-linux-gnueabi/bin:$PATH
 export ARCH=arm
-export CROSS_COMPILE=arm-cortex_a8-linux-gnueabihf-
+export CROSS_COMPILE=arm-unknown-linux-gnueabi-
 
 # Configure for QEMU Versatile platform
 make mrproper
@@ -104,7 +106,7 @@ QEMU_AUDIO_DRV=none qemu-system-arm \
 ### Build Strategy
 - Maintained separate source directories to avoid overwriting builds
 - Used `-j10` (10 cores) for faster compilation
-- Both kernels use the same cross-compiler toolchain
+- Each target uses its own optimized toolchain (hard-float for BBB, soft-float for QEMU)
 
 ### Configuration Differences
 - **multi_v7_defconfig**: Full-featured, supports many ARM SoCs including AM335x

@@ -6,9 +6,9 @@ set -e  # Exit on any error
 echo "=== Building Linux Kernel for QEMU ARM ==="
 
 # Setup toolchain path
-export PATH=${HOME}/x-tools/arm-cortex_a8-linux-gnueabihf/bin/:$PATH
+export PATH=${HOME}/x-tools/arm-unknown-linux-gnueabi/bin/:$PATH
 export ARCH=arm
-export CROSS_COMPILE=arm-cortex_a8-linux-gnueabihf-
+export CROSS_COMPILE=arm-unknown-linux-gnueabi-
 
 # Navigate to QEMU kernel source
 cd ${HOME}/linux-stable-qemu || { echo "ERROR: linux-stable-qemu directory not found"; exit 1; }
