@@ -1,0 +1,21 @@
+# U-Boot Commands for BeagleBone Black
+# Copy and paste these at the U-Boot prompt
+
+# Load kernel to memory address 0x80200000
+fatload mmc 0:1 0x80200000 zImage
+
+# Load device tree to memory address 0x80f00000
+fatload mmc 0:1 0x80f00000 am335x-boneblack.dtb
+
+# Load initramfs to memory address 0x81000000
+fatload mmc 0:1 0x81000000 uRamdisk-bbb
+
+# Set kernel boot arguments
+setenv bootargs console=ttyO0,115200 rdinit=/bin/sh
+
+# Boot the kernel (kernel_addr initramfs_addr dtb_addr)
+bootz 0x80200000 0x81000000 0x80f00000
+
+# Note: ttyO0 is the letter 'O' (not zero)
+# Modern kernels accept ttyS0 as well
+
