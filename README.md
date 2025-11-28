@@ -1,6 +1,6 @@
-# Embedded Linux Systems - From Scratch Implementation
+# Embedded Linux Systems - Professional Implementation
 
-A complete implementation of embedded Linux systems for ARM platforms, demonstrating expertise in low-level Linux system development, cross-compilation, bootloader configuration, and root filesystem creation.
+Complete implementation of embedded Linux systems for ARM platforms, demonstrating expertise in low-level Linux system development, cross-compilation, bootloader configuration, and root filesystem creation.
 
 ## Project Overview
 
@@ -8,24 +8,24 @@ This project implements fully functional embedded Linux systems for two ARM plat
 - **BeagleBone Black** (TI AM335x ARM Cortex-A8) - Real hardware deployment
 - **QEMU ARM Versatile PB** - Emulation and testing environment
 
-## Technical Implementation
-
-### Architecture
+## Architecture
 
 ```
 embedded-linux-project/
-├── 1-manual-build/          # Complete manual build system
-│   ├── 1-toolchain/         # Cross-compilation toolchains
-│   ├── 2-bootloader/        # U-Boot bootloader implementation
-│   ├── 3-kernel/            # Linux kernel builds with device trees
-│   └── 4-rootfs/            # Root filesystem with init system
-├── 2-buildroot/             # Automated build system integration
-└── 3-yocto/                 # Yocto Project layer development
+├── manual/                  # From-scratch manual builds
+│   ├── toolchain/          # Cross-compilation toolchains
+│   ├── bootloader/         # U-Boot bootloader implementation
+│   ├── kernel/             # Linux kernel builds with device trees
+│   └── rootfs/             # Root filesystem with init system
+├── buildroot/              # Buildroot automated builds (planned)
+├── yocto/                  # Yocto Project layers (planned)
+├── scripts/                # Common utilities
+└── docs/                   # Additional documentation
 ```
 
 ## Core Components
 
-### 1. Cross-Compilation Toolchains
+### 1. Cross-Compilation Toolchains (`manual/toolchain/`)
 
 Built custom ARM toolchains using crosstool-NG:
 - **ARM Cortex-A8 hard-float** (`arm-cortex_a8-linux-gnueabihf`) - Optimized for BeagleBone Black
@@ -36,9 +36,9 @@ Built custom ARM toolchains using crosstool-NG:
 - Hardware floating-point support
 - Optimized for target architecture
 
-### 2. Bootloader - U-Boot
+### 2. Bootloader (`manual/bootloader/`)
 
-Implemented U-Boot bootloader for BeagleBone Black:
+U-Boot bootloader implementation for BeagleBone Black:
 - SPL (Secondary Program Loader) configuration
 - Device tree loading
 - Memory-mapped boot from SD card
@@ -48,7 +48,7 @@ Implemented U-Boot bootloader for BeagleBone Black:
 - `MLO` (108KB) - First-stage bootloader
 - `u-boot.img` (1.5MB) - Main bootloader
 
-### 3. Linux Kernel 6.6 LTS
+### 3. Linux Kernel (`manual/kernel/`)
 
 Custom kernel builds with device tree support:
 - Multi-platform ARM configuration for BeagleBone Black
@@ -60,12 +60,13 @@ Custom kernel builds with device tree support:
 - BeagleBone Black: 17MB zImage (includes initramfs)
 - QEMU: 9.8MB zImage (includes initramfs)
 
-### 4. Root Filesystem
+### 4. Root Filesystem (`manual/rootfs/`)
 
 Custom root filesystem implementation:
 - **BusyBox** userspace with 402 Unix utilities
 - Custom init system with startup scripts
 - Filesystem Hierarchy Standard (FHS) compliant
+- Network configuration with NSS support
 - Optimized for embedded deployment (~16MB)
 
 **Init system features:**
@@ -80,12 +81,12 @@ Custom root filesystem implementation:
 
 ```bash
 # Create root filesystems
-cd 1-manual-build/4-rootfs
-./setup-rootfs.sh
+cd manual/rootfs
+sudo ./setup.sh              # Needs sudo for device nodes
 
 # Build kernels with embedded initramfs
-./build-bbb-kernel.sh      # BeagleBone Black
-./build-qemu-kernel.sh     # QEMU
+sudo ./build-bbb.sh          # BeagleBone Black
+sudo ./build-qemu.sh         # QEMU
 
 # Test in emulation
 ./test-qemu.sh
@@ -96,12 +97,48 @@ cd 1-manual-build/4-rootfs
 ```bash
 # Deploy to SD card
 sudo mount /dev/sdb1 /media/ahmad/boot
-sudo cp ~/linux-stable/arch/arm/boot/zImage /media/ahmad/boot/
+sudo cp /home/ahmad/linux-stable/arch/arm/boot/zImage /media/ahmad/boot/
 sudo sync
 sudo umount /media/ahmad/boot
 
 # Boot on BeagleBone Black
-# See 4-rootfs/README.md for U-Boot commands
+# See manual/rootfs/README.md for U-Boot commands
+```
+
+## Documentation
+
+Comprehensive documentation provided:
+- `manual/README.md` - Manual build process overview
+- `manual/toolchain/README.md` - Toolchain build process
+- `manual/bootloader/README.md` - U-Boot configuration
+- `manual/kernel/README.md` - Kernel compilation
+- `manual/rootfs/README.md` - Complete system integration
+
+## System Specifications
+
+| Component | BeagleBone Black | QEMU ARM |
+|-----------|------------------|-----------|
+| **CPU** | TI AM335x Cortex-A8 | ARM926EJ-S |
+| **Kernel** | Linux 6.6 LTS (17MB) | Linux 6.6 LTS (9.8MB) |
+| **Bootloader** | U-Boot 2025.10 | Direct boot |
+| **Root FS** | BusyBox (~16MB) | BusyBox (~16MB) |
+| **Init** | Custom BusyBox init | Custom BusyBox init |
+| **Boot Time** | ~4 seconds to shell | ~2 seconds to shell |
+| **Network** | Ethernet + loopback | loopback |
+
+## Build Environment
+
+### Host Requirements
+- Linux (Ubuntu/Debian tested)
+- ~20GB disk space
+- Multi-core CPU (recommended for parallel builds)
+
+### Dependencies
+```bash
+sudo apt-get install -y \
+    build-essential git autoconf automake bison flex \
+    libssl-dev libgnutls28-dev device-tree-compiler \
+    u-boot-tools qemu-system-arm screen
 ```
 
 ## Technical Skills Demonstrated
@@ -128,41 +165,8 @@ sudo umount /media/ahmad/boot
 - Root filesystem construction
 - BusyBox integration and configuration
 - Init system implementation
+- Network configuration with NSS
 - Hardware-specific optimizations
-
-## System Specifications
-
-| Component | BeagleBone Black | QEMU ARM |
-|-----------|------------------|-----------|
-| **CPU** | TI AM335x Cortex-A8 | ARM926EJ-S |
-| **Kernel** | Linux 6.6 LTS (17MB) | Linux 6.6 LTS (9.8MB) |
-| **Bootloader** | U-Boot 2025.10 | Direct boot |
-| **Root FS** | BusyBox (~16MB) | BusyBox (~16MB) |
-| **Init** | Custom BusyBox init | Custom BusyBox init |
-| **Boot Time** | ~4 seconds to shell | ~2 seconds to shell |
-
-## Build Environment
-
-### Host Requirements
-- Linux (Ubuntu/Debian tested)
-- ~20GB disk space
-- Multi-core CPU (recommended for parallel builds)
-
-### Dependencies
-```bash
-sudo apt-get install -y \
-    build-essential git autoconf automake bison flex \
-    libssl-dev libgnutls28-dev device-tree-compiler \
-    u-boot-tools qemu-system-arm screen
-```
-
-## Documentation
-
-Comprehensive documentation provided:
-- `1-toolchain/README.md` - Toolchain build process
-- `2-bootloader/README.md` - U-Boot configuration
-- `3-kernel/README.md` - Kernel compilation
-- `4-rootfs/README.md` - Complete system integration
 
 ## Validation
 
@@ -172,15 +176,39 @@ Both systems fully tested and operational:
 - ✅ All BusyBox applets functional
 - ✅ Init system properly mounts filesystems
 - ✅ Network loopback operational
+- ✅ Device nodes created correctly
+- ✅ Console and TTY handling working
 
-## Future Enhancements
+## Build Methods
 
-Planned improvements:
-- Buildroot integration for automated builds
-- Yocto Project layer development
-- Custom application deployment
-- NFS root filesystem for development
-- Package management system
+### Manual Builds (Complete ✅)
+From-scratch implementation demonstrating deep understanding:
+- Custom toolchain compilation
+- Bootloader configuration
+- Kernel customization
+- Root filesystem construction
+
+### Buildroot (Planned 🔄)
+Automated embedded Linux build system:
+- Package management
+- Reproducible builds
+- Configuration-driven approach
+
+### Yocto Project (Planned 🔄)
+Advanced layer-based build system:
+- Layer development
+- Recipe creation
+- BSP (Board Support Package) integration
+
+## Performance Metrics
+
+| Metric | BeagleBone Black | QEMU |
+|--------|------------------|------|
+| Kernel Size | 17MB | 9.8MB |
+| RootFS Size | 16MB | 16MB |
+| Boot Time | ~4 sec | ~2 sec |
+| Shell Spawn | <1 sec | <1 sec |
+| Memory Usage | ~30MB | ~20MB |
 
 ## Technical References
 
@@ -194,6 +222,13 @@ Planned improvements:
 - Filesystem Hierarchy Standard (FHS)
 - Device Tree Specification
 - ARM EABI (hard-float/soft-float)
+- Name Service Switch (NSS)
+
+## Project Status
+
+✅ **Manual builds** - Complete and tested on hardware  
+🔄 **Buildroot** - Planned for automated builds  
+🔄 **Yocto Project** - Planned for advanced layer development
 
 ## License
 

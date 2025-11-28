@@ -27,9 +27,19 @@ linux-*/
 u-boot/
 u-boot-*/
 crosstool-ng/
-buildroot/
 buildroot-*/
 poky/
+
+# Keep our buildroot/ and yocto/ project directories
+!buildroot/
+!yocto/
+# But ignore their build artifacts
+buildroot/*
+yocto/*
+!buildroot/README.md
+!buildroot/*.sh
+!yocto/README.md
+!yocto/*.sh
 
 # Buildroot
 dl/
