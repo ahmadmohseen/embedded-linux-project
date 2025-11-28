@@ -12,11 +12,25 @@ Buildroot is a tool that simplifies and automates the process of building a comp
 - Root filesystem creation with BusyBox and packages
 - Image generation ready for deployment
 
+## Quick Start
+
+```bash
+# Build for QEMU
+./build.sh qemu
+
+# Build for BeagleBone Black
+./build.sh bbb
+
+# Build both systems
+./build.sh all
+```
+
 ## Directory Structure
 
 ```
 buildroot/
 ├── README.md                    # This file
+├── build.sh                     # Build script for QEMU and BBB
 ├── buildroot/                   # Buildroot source (cloned from upstream)
 │   ├── output/                  # QEMU ARM Versatile PB build
 │   │   └── images/              # Bootable images for QEMU
