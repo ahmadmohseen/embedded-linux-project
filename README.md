@@ -19,9 +19,7 @@ embedded-linux-project/
 │   └── rootfs/             # Root filesystem with init system
 ├── buildroot/              # Buildroot automated builds
 │   └── buildroot/          # Buildroot source with QEMU & BBB configs
-├── yocto/                  # Yocto Project layers (planned)
-├── scripts/                # Common utilities
-└── docs/                   # Additional documentation
+└── yocto/                  # Yocto Project layers (planned)
 ```
 
 ## Core Components
