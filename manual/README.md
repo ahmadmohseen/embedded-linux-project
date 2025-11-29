@@ -1,180 +1,144 @@
-# Manual Build Implementation
+# Manual Builds
 
-Complete embedded Linux systems built from first principles, demonstrating deep understanding of embedded Linux architecture and build processes.
+Building embedded Linux systems from scratch to understand how everything fits together.
 
-## Overview
+## What's Here
 
-This implementation builds all components manually, providing complete control and understanding of:
-1. Cross-compilation toolchains
-2. Bootloader configuration and deployment
-3. Linux kernel compilation with device trees
-4. Root filesystem construction and init systems
+Complete implementation of all layers:
+1. Cross-compilation toolchains (`toolchain/`)
+2. U-Boot bootloader (`bootloader/`)
+3. Linux kernel with device trees (`kernel/`)
+4. Root filesystem and init system (`rootfs/`)
 
 ## Build Pipeline
 
-### 1. Toolchain Construction (`toolchain/`)
+### 1. Toolchains
+Two ARM toolchains built with crosstool-NG:
+- **arm-cortex_a8-linux-gnueabihf** - For BeagleBone Black (hard-float)
+- **arm-unknown-linux-gnueabi** - For QEMU (soft-float)
 
-Custom ARM toolchains built using crosstool-NG:
+Located in: `~/x-tools/`
 
-**Deliverables:**
-- `~/x-tools/arm-cortex_a8-linux-gnueabihf/` - Hard-float toolchain for BeagleBone Black
-- `~/x-tools/arm-unknown-linux-gnueabi/` - Soft-float toolchain for QEMU
+### 2. Bootloader (BBB only)
+U-Boot 2025.10 for BeagleBone Black:
+- `MLO` (108KB) - First-stage loader
+- `u-boot.img` (1.5MB) - Main bootloader
+- Boots from SD card, loads kernel and device tree
 
-**Technical details:**
-- Custom glibc configuration for target architecture
-- Optimized compiler flags for ARM Cortex-A8
-- Complete sysroot with development headers
-
-### 2. Bootloader Implementation (`bootloader/`)
-
-U-Boot configuration for BeagleBone Black:
-
-**Deliverables:**
-- `MLO` - SPL (Secondary Program Loader)
-- `u-boot.img` - Main U-Boot binary
-- Formatted SD card ready for deployment
-
-**Features:**
-- FAT32 boot partition support
-- Device tree loading capability
-- Memory-mapped register access
-- Serial console at 115200 baud
-
-### 3. Kernel Compilation (`kernel/`)
-
-Linux 6.6 LTS builds for both platforms:
-
+### 3. Kernel
+Linux 6.6 LTS for both platforms:
 ```bash
 cd kernel
-./build-bbb.sh      # BeagleBone Black kernel
-./build-qemu.sh     # QEMU kernel
+./build-bbb.sh   # BeagleBone Black
+./build-qemu.sh  # QEMU
 ```
 
-**Deliverables:**
-- Compressed kernel images (zImage)
-- Compiled device tree blobs (.dtb)
+Output:
+- zImage (compressed kernel)
+- Device tree blob (.dtb)
 
-**Configuration:**
-- Multi-v7 defconfig for BeagleBone Black (comprehensive driver support)
-- Versatile defconfig for QEMU (minimal, optimized for emulation)
-
-### 4. Root Filesystem & System Integration (`rootfs/`)
-
-Complete userspace implementation:
-
+### 4. Root Filesystem
+Complete userspace with BusyBox:
 ```bash
 cd rootfs
-sudo ./setup.sh          # Create base filesystems
-sudo ./build-bbb.sh      # Build kernel with embedded initramfs
-sudo ./build-qemu.sh     # Build QEMU kernel
-./test-qemu.sh           # Validate in emulation
+sudo ./setup.sh      # Create filesystems
+sudo ./build-bbb.sh  # Build BBB kernel with embedded rootfs
+sudo ./build-qemu.sh # Build QEMU kernel
+./test-qemu.sh       # Test in emulation
 ```
 
-**Deliverables:**
-- `/home/ahmad/rootfs-bbb/` - BeagleBone Black root filesystem
-- `/home/ahmad/rootfs-qemu/` - QEMU root filesystem
-- Bootable kernel images with embedded initramfs
+Creates:
+- `~/rootfs-bbb/` - BeagleBone Black filesystem
+- `~/rootfs-qemu/` - QEMU filesystem
 
-## Technical Implementation
+Both embedded in kernel images as initramfs.
+
+## Technical Details
 
 ### Toolchain
-- **ABI:** Hard-float for Cortex-A8, soft-float for QEMU
-- **C Library:** glibc (full-featured)
-- **Compiler:** GCC 15.2.0
-- **Linker:** GNU ld 2.45
-
-### Bootloader
-- **Architecture:** Two-stage boot (SPL → U-Boot)
-- **Storage:** SD card (MMC)
-- **Load addresses:** Optimized for AM335x memory map
-- **Console:** UART0 (115200n8)
+- **ABI**: Hard-float (Cortex-A8) vs Soft-float (QEMU)
+- **C Library**: glibc
+- **Compiler**: GCC 15.2.0
 
 ### Kernel
-- **Version:** 6.6 LTS (long-term support)
-- **Format:** zImage (compressed)
-- **Device Trees:** Compiled FDT blobs
-- **Initramfs:** Built-in (embedded in kernel image)
+- **Version**: 6.6 LTS
+- **Format**: zImage (compressed)
+- **Initramfs**: Built-in (embedded in kernel)
+- **BBB Config**: multi_v7_defconfig (comprehensive)
+- **QEMU Config**: versatile_defconfig (minimal)
 
 ### Root Filesystem
-- **Base:** BusyBox (statically linked)
-- **Utilities:** 402 Unix commands
-- **Init:** BusyBox init with custom scripts
-- **Network:** NSS libraries for name resolution
-- **Size:** ~16MB (optimized for embedded)
+- **Base**: BusyBox (402 Unix utilities, statically linked)
+- **Init**: BusyBox init with `/etc/inittab`
+- **Startup**: `/etc/init.d/rcS` script
+- **Size**: ~16MB
+- **Network**: NSS libraries for DNS resolution
 
 ## Boot Process
 
-1. **ROM Boot** → Loads SPL (MLO)
-2. **SPL** → Initializes DDR, loads U-Boot
-3. **U-Boot** → Loads kernel and device tree to RAM
-4. **Kernel** → Unpacks built-in initramfs to RAM
-5. **Init** → Mounts filesystems, runs startup scripts
-6. **Shell** → Spawns on console
+1. ROM → Loads SPL (MLO)
+2. SPL → Initializes DDR, loads U-Boot
+3. U-Boot → Loads kernel + device tree to RAM
+4. Kernel → Unpacks built-in initramfs
+5. Init → Mounts filesystems, runs startup scripts
+6. Shell → Spawns on console
 
 ## Testing
 
-### QEMU Testing
-
-Fast iteration with emulation:
+### QEMU (Fast Testing)
 ```bash
 cd rootfs
 ./test-qemu.sh
-# System boots in ~2 seconds
-# Full shell access for testing
+# Boots in ~2 seconds
+# Ctrl+A then X to exit
 ```
 
-### Hardware Deployment
-
-Tested and operational on BeagleBone Black:
+### BeagleBone Black
+Tested on real hardware:
 - Boot time: ~4 seconds to shell
-- Serial console fully functional
-- All BusyBox commands working
-- Init system properly configured
-- Network loopback operational
+- Serial console working (115200 baud)
+- All BusyBox commands functional
+- Init system working correctly
 
-## Build Time Estimates
+## Build Times
 
-- **Toolchain:** ~1 hour (first build)
-- **U-Boot:** ~10 minutes
-- **Kernel:** ~30 minutes (first build, ~5min incremental)
-- **Root FS:** ~5 minutes
+- Toolchain: ~1 hour (one-time)
+- U-Boot: ~10 minutes
+- Kernel: ~30 minutes (first), ~5 minutes (incremental)
+- Root FS: ~5 minutes
 
-**Total:** ~2 hours for complete system from scratch
+**Total**: ~2 hours from scratch
 
 ## Key Concepts
 
 ### Cross-Compilation
-- Target vs. host architecture awareness
-- Sysroot and library search paths
-- Toolchain prefix usage
-- ABI compatibility
+Building ARM binaries on x86 host, requires proper toolchain prefix and sysroot configuration.
 
 ### Device Trees
-- Hardware description separation from kernel
-- Runtime hardware configuration
-- Platform-specific customization
-- Bootloader-kernel communication
+Hardware description separate from kernel - allows same kernel to support multiple boards.
 
 ### Init System
-- `/sbin/init` as PID 1
-- `/etc/inittab` configuration
-- `/etc/init.d/rcS` startup script
-- Filesystem mounting and system setup
+- BusyBox init runs as PID 1
+- `/etc/inittab` controls what runs at boot
+- `/etc/init.d/rcS` does system initialization
 
-### Network Integration
-- NSS (Name Service Switch) libraries
-- Network configuration framework
-- Interface management (ifup/ifdown)
-- DHCP client support (udhcpc)
+### Initramfs
+Root filesystem embedded in kernel image, unpacked to RAM at boot. Simpler than separate ramdisk file.
 
-## Technical Skills Demonstrated
+## What I Learned
 
-- ✅ Cross-platform embedded development
-- ✅ Low-level system programming
-- ✅ Bootloader configuration
-- ✅ Kernel compilation and configuration
-- ✅ Root filesystem construction
-- ✅ Init system design
-- ✅ Device tree development
-- ✅ Network configuration
-- ✅ Build system expertise
+- Cross-platform embedded development
+- Bootloader configuration and memory layout
+- Kernel compilation and configuration
+- Root filesystem construction from scratch
+- Init system design
+- Device tree development
+- Build automation with shell scripts
+
+## Documentation
+
+See subdirectories for detailed info:
+- `toolchain/README.md` - Toolchain build process
+- `bootloader/README.md` - U-Boot setup
+- `kernel/README.md` - Kernel compilation
+- `rootfs/README.md` - System integration
